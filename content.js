@@ -25,13 +25,16 @@ function addLinkedInButtons() {
             return window.location.href;
         }
 
-        btn.onclick = () => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation(); // ensure LinkedIn doesn’t block it
             let title = post.querySelector(".feed-shared-update-v2__description, .feed-shared-text")?.innerText || post.innerText;
             let author = post.querySelector(".feed-shared-actor__name")?.innerText || "Unknown";
             let link = getPostLink(post);
+            console.log({title, author, link});
             sendToNotion({ title, author, link, source: "LinkedIn" });
             btn.innerText = "Saved ✅";
-        };
+        });
 
         post.appendChild(btn);
     });
@@ -47,13 +50,13 @@ function addMediumButtons() {
         btn.style.display = "block";
         btn.style.marginBottom = "10px";
 
-        btn.onclick = () => {
+        btn.addEventListener("click", (e) => {
             let titleText = title?.innerText || document.title;
             let author = document.querySelector("[rel='noopener follow']")?.innerText || "Unknown";
             let link = window.location.href;
             sendToNotion({ title: titleText, author, link, source: "Medium" });
             btn.innerText = "Saved ✅";
-        };
+        });
 
         title.parentNode.insertBefore(btn, title);
     });
@@ -68,7 +71,7 @@ function addSubstackButtons() {
         let btn = createBtn();
         titleEl.dataset.btnAdded = "true"; 
 
-        btn.onclick = (e) => {
+         btn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
             let title = titleEl.innerText || document.title;
@@ -78,7 +81,7 @@ function addSubstackButtons() {
             let link = titleEl.href || window.location.href;
             sendToNotion({ title, author, link, source: "Substack" });
             btn.innerText = "Saved ✅";
-        };
+        });
 
         titleEl.parentNode.insertBefore(btn, titleEl.nextSibling);
     });
@@ -101,7 +104,7 @@ function createBtn() {
 
 function sendToNotion(data) {
     // get title from web
-    fetch("http://localhost:5678/webhook/save-linkedin", { 
+    fetch("http://localhost:5678/webhook/save-posts", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
